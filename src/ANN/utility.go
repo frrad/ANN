@@ -13,12 +13,11 @@ func MakeSimple(inNodes, hidNodes, outNodes int, activation string) *Network {
 		panic("unsupported activation function")
 	}
 
-	sigma := 1.
 	activate := func(in float64) float64 {
-		return bipolarSigmoid(in, sigma)
+		return bipolarSigmoid(in)
 	}
 	activateD := func(in float64) float64 {
-		return bipolarSigmoidD(in, sigma)
+		return bipolarSigmoidD(in)
 	}
 
 	result := new(Network)

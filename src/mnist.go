@@ -16,7 +16,7 @@ const (
 	testsize      = size / testfreq
 	trainsize     = size - testsize
 	lRate         = .0005
-	targetPercent = .9
+	targetPercent = .7
 )
 
 func readData(path string) (train, test map[[dim * dim]int]int) {
@@ -151,6 +151,14 @@ func main() {
 
 	}
 
+	fmt.Println("Saving...")
+	network.Save("network.net")
+	fmt.Println("Saved.")
+
+	fmt.Println("Loading...")
+	network = ANN.Load("network.net")
+	fmt.Println("Loaded")
+
 	for pixels, value := range testing {
 
 		fmt.Println(value)
@@ -162,6 +170,6 @@ func main() {
 		pretty(ans)
 	}
 
-	network.Save("network.net")
+	fmt.Println("Elapsed time:", time.Since(starttime))
 
 }
