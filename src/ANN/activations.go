@@ -23,13 +23,17 @@ func identity(x float64) float64 {
 
 func determineFunction(f func(float64) float64) string {
 	err := .001
-
 	variation := 0.
-	for x := -1.; x < 1; x += .01 {
-		variation += math.Abs(f(x) - bipolarSigmoid(x, 2))
-	}
-	if variation < err {
-		return "BPSig (2)"
+
+	for sigma := 1.; sigma < 4; sigma++ {
+		variation = 0.
+		for x := -1.; x < 1; x += .01 {
+			variation += math.Abs(f(x) - bipolarSigmoid(x, sigma))
+		}
+		if variation < err {
+			return fmt.Sprintf("BPSig (%f)", sigma)
+
+		}
 	}
 
 	variation = 0.

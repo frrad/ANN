@@ -9,19 +9,31 @@ import (
 	"time"
 )
 
-const dim = 28
+const (
+	size          = 10000
+	dim           = 28
+	testfreq      = 5
+	testsize      = size / testfreq
+	trainsize     = size - testsize
+	lRate         = .0005
+	targetPercent = .9
+)
 
-func readData(path string) map[[dim * dim]int]int {
+func readData(path string) (train, test map[[dim * dim]int]int) {
 	ans, err := ioutil.ReadFile(path)
 	if err != nil {
 		panic("ERROR READING FILE")
 	}
 
-	ret := make(map[[dim * dim]int]int)
+	test, train = make(map[[dim * dim]int]int), make(map[[dim * dim]int]int)
 
 	splat := strings.Split(string(ans), "\n")
 
-	for _, data := range splat {
+	for X, data := range splat {
+		if X > size {
+			break
+		}
+
 		split := strings.Split(data, ",")
 
 		cheat, _ := strconv.Atoi(split[0])
@@ -33,11 +45,14 @@ func readData(path string) map[[dim * dim]int]int {
 			pixels[i-1] = convert
 		}
 
-		ret[pixels] = cheat
+		if X%testfreq == 0 {
+			test[pixels] = cheat
+		} else {
+			train[pixels] = cheat
+		}
 	}
 
-	return ret
-
+	return
 }
 
 func makeVec(number [dim * dim]int) []float64 {
@@ -60,6 +75,21 @@ func makeOut(an int) []float64 {
 	return out
 }
 
+func max(a []float64) (ans int) {
+
+	max := -5.
+
+	for i, wt := range a {
+		if wt > max {
+			ans = i
+			max = wt
+		}
+	}
+
+	return
+
+}
+
 func pretty(vector []float64) {
 	for x, val := range vector {
 		val := (1 + val) * 5
@@ -71,51 +101,67 @@ func pretty(vector []float64) {
 	}
 }
 
+func show(pixels []float64) {
+	for i := 0; i < 28; i++ {
+		for j := 0; j < 28; j++ {
+			if pixels[28*i+j] > .3 {
+				fmt.Print("X")
+			} else {
+				fmt.Print(" ")
+			}
+
+		}
+		fmt.Print("\n")
+	}
+}
+
 func main() {
 
 	starttime := time.Now()
 
-	training := readData("../data/train.csv")
+	training, testing := readData("../data/train.csv")
 	fmt.Println("Read in training data")
 
-	network := ANN.MakeSimple(dim*dim, 300, 10, "BPSig")
-	network.RandomWeights(-.01, .01)
+	network := ANN.MakeSimple(dim*dim, 100, 10, "BPSig")
+	network.RandomWeights(-.001, .001)
 
-	for j := 0; j < 60; j++ {
+	right := 0.
+
+	for j := 0; right < testsize*targetPercent; j++ {
 
 		//train
-
 		for pixels, value := range training {
-			network.BackProp(makeVec(pixels), makeOut(value), .2)
-			//fmt.Println(makeOut(value))
+
+			network.BackProp(makeVec(pixels), makeOut(value), lRate)
 
 		}
-		fmt.Println("Epoch:", j)
+
+		fmt.Println("Epoch:", j, "Complete.")
 		fmt.Println("Elapsed time:", time.Since(starttime))
+
+		//test
+		right = 0
+		for pixels, value := range testing {
+			ans, _ := network.Evaluate(makeVec(pixels))
+			if max(ans) == value {
+				right++
+			}
+		}
+		fmt.Printf("Got %d/%d = %2.2f%%\n", int(right), testsize, 100*right/float64(testsize))
 
 	}
 
-	for pixels, value := range training {
+	for pixels, value := range testing {
 
 		fmt.Println(value)
 
-		for i := 0; i < 28; i++ {
-			for j := 0; j < 28; j++ {
-				if pixels[28*i+j] > 50 {
-					fmt.Print("X")
-				} else {
-					fmt.Print(" ")
-				}
-
-			}
-			fmt.Print("\n")
-		}
-
 		ans, _ := network.Evaluate(makeVec(pixels))
-
+		answer := max(ans)
+		show(makeVec(pixels))
+		fmt.Printf("Answer: %d; Network thinks: %d; Probability: %2.1f %%\n", value, answer, 50*(ans[answer]+1))
 		pretty(ans)
 	}
 
-	network.Save("pathhhh?")
+	network.Save("network.net")
 
 }

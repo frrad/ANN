@@ -13,7 +13,7 @@ func MakeSimple(inNodes, hidNodes, outNodes int, activation string) *Network {
 		panic("unsupported activation function")
 	}
 
-	sigma := 2.
+	sigma := 1.
 	activate := func(in float64) float64 {
 		return bipolarSigmoid(in, sigma)
 	}
@@ -131,6 +131,8 @@ func (a *Network) zero() {
 		for _, node := range layer {
 			node.state = 0
 		}
+		//Bias
+		layer[len(layer)-2].state = 1
 	}
 	for _, node := range a.outputNodes {
 		node.state = 0

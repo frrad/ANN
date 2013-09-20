@@ -29,8 +29,9 @@ func (a *Network) BackProp(in, target []float64, alpha float64) error {
 	}
 
 	for _, inNode := range a.inputNodes {
+		xi := inNode.activation(inNode.state)
 		for i, link := range inNode.forward {
-			update := alpha * link.delta * inNode.state
+			update := alpha * link.delta * xi
 			inNode.weights[i] += update
 		}
 	}
@@ -38,7 +39,7 @@ func (a *Network) BackProp(in, target []float64, alpha float64) error {
 	for _, layer := range a.hiddenNodes {
 		for _, hidNode := range layer {
 			for i, link := range hidNode.forward {
-				update := alpha * link.delta * hidNode.state
+				update := alpha * link.delta * hidNode.activation(hidNode.state)
 				hidNode.weights[i] += update
 			}
 		}

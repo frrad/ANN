@@ -2,6 +2,7 @@ package ANN
 
 import (
 	"fmt"
+	"io/ioutil"
 )
 
 func Load(path string) *Network {
@@ -10,8 +11,7 @@ func Load(path string) *Network {
 
 //Activation function is not saved!
 func (a *Network) Save(path string) {
-	fmt.Print(a.outputFormat())
-
+	ioutil.WriteFile(path, []byte(a.outputFormat()), 0666)
 }
 
 func (a *Network) outputFormat() (out string) {
