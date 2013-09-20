@@ -86,25 +86,7 @@ func MakeSimple(inNodes, hidNodes, outNodes int, activation string) *Network {
 
 //Testing purposes
 func (a *Network) Print() {
-	fmt.Println("Input Nodes")
-	for _, in := range a.inputNodes {
-		fmt.Println(in)
-	}
-	for i, layer := range a.hiddenNodes {
-
-		fmt.Println("Hidden Layer:", i, "=", layer)
-
-		for _, node := range layer {
-
-			fmt.Println(node)
-		}
-	}
-
-	fmt.Println("Out Nodes =", a.outputNodes)
-	for _, out := range a.outputNodes {
-		fmt.Println(out)
-	}
-
+	fmt.Println(a.outputFormat())
 }
 
 func (a *Network) Evaluate(inVector []float64) (answer []float64, err error) {
