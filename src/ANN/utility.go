@@ -37,6 +37,7 @@ func MakeSimple(inNodes, hidNodes, outNodes int, activation string) *Network {
 	for i := 0; i < hidNodes; i++ {
 		newNode := new(node)
 		newNode.activation = activate
+		newNode.activationD = activateD
 		newNode.weights = make([]float64, outNodes)
 		newNode.forward = make([]*node, outNodes)
 		for j, out := range result.outputNodes {
@@ -47,6 +48,7 @@ func MakeSimple(inNodes, hidNodes, outNodes int, activation string) *Network {
 
 	bias := new(node)
 	bias.activation = identity
+	bias.activationD = identity
 	bias.weights = make([]float64, outNodes)
 	bias.forward = make([]*node, outNodes)
 	for j, out := range result.outputNodes {
@@ -109,6 +111,7 @@ func (a *Network) Evaluate(inVector []float64) (answer []float64, err error) {
 	if len(inVector)+1 != len(a.inputNodes) {
 		return nil, &ErrWrongInput{len(a.inputNodes), len(inVector)}
 	}
+	a.zero()
 
 	for i, input := range inVector {
 		node := a.inputNodes[i]
@@ -139,6 +142,17 @@ func (a *Network) Evaluate(inVector []float64) (answer []float64, err error) {
 	}
 
 	return
+}
+
+func (a *Network) zero() {
+	for _, layer := range a.hiddenNodes {
+		for _, node := range layer {
+			node.state = 0
+		}
+	}
+	for _, node := range a.outputNodes {
+		node.state = 0
+	}
 }
 
 //Sets all weights in network randomly in specified range
