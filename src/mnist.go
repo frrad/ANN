@@ -10,13 +10,13 @@ import (
 )
 
 const (
-	size          = 10000
+	size          = 20000
 	dim           = 28
 	testfreq      = 5
 	testsize      = size / testfreq
 	trainsize     = size - testsize
-	lRate         = .0005
-	targetPercent = .7
+	lRate         = .0001
+	targetPercent = .95
 )
 
 func readData(path string) (train, test map[[dim * dim]int]int) {
@@ -156,14 +156,14 @@ func main() {
 	fmt.Println("Saved.")
 
 	fmt.Println("Loading...")
-	network = ANN.Load("network.net")
+	neatwork := ANN.Load("network.net")
 	fmt.Println("Loaded")
 
 	for pixels, value := range testing {
 
 		fmt.Println(value)
 
-		ans, _ := network.Evaluate(makeVec(pixels))
+		ans, _ := neatwork.Evaluate(makeVec(pixels))
 		answer := max(ans)
 		show(makeVec(pixels))
 		fmt.Printf("Answer: %d; Network thinks: %d; Probability: %2.1f %%\n", value, answer, 50*(ans[answer]+1))
