@@ -5,6 +5,35 @@ import (
 	"math"
 )
 
+func byID(id string) func(float64) float64 {
+	if id == "BPSig" {
+		return bipolarSigmoid
+	}
+
+	if id == "Identity" {
+		return identity
+	}
+
+	panic("UNKNOWN FUNCTION")
+
+	return nil
+}
+
+//derivative by ID (of original function)
+func byIDD(id string) func(float64) float64 {
+	if id == "BPSig" {
+		return bipolarSigmoidD
+	}
+
+	if id == "Identity" {
+		return identity
+	}
+
+	panic("UNKNOWN FUNCTION")
+
+	return nil
+}
+
 ///aka "BPSig"
 func bipolarSigmoid(in float64) float64 {
 	sigma := 1.
